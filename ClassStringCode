@@ -1,0 +1,218 @@
+#include<string.h>
+#include <iostream>
+enum{MIN = 2};
+using namespace std;
+class mstring{
+	private:
+		char *str_;
+		int len_;
+	public:
+		mstring();
+		mstring(const mstring& str);
+		mstring(const char *str);
+		~mstring();
+		int length();
+		bool isempty();
+		void add(char c);
+		void add(const char *c);
+		void insert(char c, int i);
+		void insert(const char *c, int i);
+		void del(int i);
+		void del(int i, int j);
+		int search(const char* str);
+		void replace(const char* sub_str, const char *new_str);
+		void print();
+		
+		friend const mstring operator+(const mstring &fir, const mstring &sec);
+		mstring operator*(int n) const;
+		friend const mstring operator*(int n, const mstring &other);
+		mstring& operator=(const mstring &other);
+		bool operator >(const mstring &other) const;
+		bool operator <(const mstring &other) const;
+		bool operator >=(const mstring &other) const;
+		bool operator <=(const mstring &other) const;
+		bool operator ==(const mstring &other) const;
+		char& operator[](int num) const;
+		char& operator[](int num);
+		friend std::ostream& operator<<(std::ostream& out, const mstring& other);
+		friend std::istream& operator>>(std::istream& in, mstring &other);
+};
+const mstring operator+(const mstring &fir, const mstring &sec){
+	mstring res(fir.str_);
+	res.add(sec.str_);
+	return res;
+}
+mstring mstring::operator*(int n) const{
+	mstring res(this->str_);
+	for(int i = 1; i < n; i++){
+		res.add(this->str_);
+	}
+	return res;
+}
+const mstring operator*(int n, mstring &other){
+	return other*n;
+}
+mstring& mstring::operator=(const mstring &other){
+	this->len_ = 0;
+	this->add(other.str_);
+	this->len_ = other.len_;
+	return *this;
+}
+bool mstring::operator>(const mstring &other) const{
+	if ((strcmp(this->str_, other.str_)) > 0) return true;
+	return false;
+}
+bool mstring::operator<(const mstring &other) const{
+	if ((strcmp(this->str_, other.str_)) < 0) return true;
+	return false;
+}
+bool mstring::operator<=(const mstring &other) const{
+	return !(*this > other);
+}
+bool mstring::operator>=(const mstring &other) const{
+	return !(*this < other);
+}
+bool mstring::operator==(const mstring &other) const{
+	if((strcmp(this->str_, other.str_)) == 0) return true;
+	return false;
+}
+char& mstring::operator[](int num) const{
+	return this->str_[num];
+}
+char& mstring::operator[](int num){
+	return this->str_[num];
+}
+std::istream& operator>>(std::istream& in, mstring &other){
+	char c;
+	other.str_ = new char[MIN];
+	c = getchar();
+	while(c != '\n' && c != EOF){
+		other.add(c);
+		c = getchar();
+	}
+	other.len_ = strlen(other.str_);
+	return in;
+}
+std::ostream& operator<<(std::ostream& out, const mstring &other){
+	for(int i = 0; i < other.len_; i++){
+		out << other.str_[i];
+	}
+	return out;
+}
+mstring::mstring(){
+	this->str_ = new char[MIN];
+	this->len_ = 0;
+}
+mstring::mstring(const mstring& str){
+	this->str_ = new char[str.len_];
+	this->len_ = str.len_;
+	for (int i = 0; i < this->len_; i++){
+		this->str_[i] = str.str_[i];
+	}
+}
+mstring::mstring(const char *str){
+	if(str == nullptr){
+		this->len_ = 0;
+	}
+	else{
+		this->len_ = strlen(str);
+		this->str_ = new char[len_];
+		for(int i = 0; i < this->len_; i++){
+			this->str_[i] = str[i];
+		}
+	}
+}
+mstring::~mstring(){
+	delete[] this->str_;
+}
+int mstring::length(){
+	return len_;
+}
+bool mstring::isempty(){
+	if(len_ == 0) return true;
+	else return false;
+}
+void mstring::add(char c){
+	char *tmp = new char[len_];
+	for(int i = 0; i < len_; i++) tmp[i] = str_[i];
+	str_ = new char[len_+1];
+	str_[len_] = c;
+	for(int i = 0; i < len_; i++) str_[i] = tmp[i];
+	len_++;
+	delete[] tmp;
+}
+void mstring::add(const char *c){
+	char *tmp = new char[len_];
+	for(int i = 0; i < len_; i++) tmp[i] = str_[i];
+	str_ = new char[len_+strlen(c)];
+	for(int i = 0; i < len_; i++) str_[i] = tmp[i];
+	for(int i = 0; i < strlen(c); i++) str_[i+len_] = c[i];
+	len_+=strlen(c);
+	delete[] tmp;
+}
+void mstring::insert(char c, int point){
+	char *tmp = new char[len_];
+	for(int j = 0; j < len_; j++) tmp[j] = str_[j];
+	str_ = new char[len_+1];
+	for(int j = 0; j < point; j++) str_[j] = tmp[j];
+	for(int j = len_; j > point; j--) str_[j] = tmp[j-1];
+	str_[point] = c;
+	len_++;
+	delete[] tmp;
+}
+void mstring::insert(const char *c, int point){
+	char *tmp = new char[len_];
+	for(int j = 0; j < len_; j++) tmp[j] = str_[j];
+	str_ = new char[len_+strlen(c)];
+	for(int j = 0; j < point; j++) str_[j] = tmp[j];
+	for(int j = point+strlen(c); j < len_+strlen(c); j++) str_[j] = tmp[j-strlen(c)];
+	for(int j = 0; j < strlen(c); j++) str_[j+point] = c[j];
+	len_+=strlen(c);
+	delete[] tmp;
+}
+void mstring::del(int point){
+	char *tmp = new char[len_];
+	for(int j = 0; j < len_; j++) tmp[j] = str_[j];
+	str_ = new char[len_-1];
+	for(int j = 0; j < point; j++) str_[j] = tmp[j];
+	for(int j = point; j < len_-1; j++) str_[j] = tmp[j+1];
+	len_--;
+	delete[] tmp;
+}
+void mstring::del(int start, int end){
+	char *tmp = new char[len_];
+	for(int j = 0; j < len_; j++) tmp[j] = str_[j];
+	str_ = new char[len_-(end-start+1)];
+	for(int j = 0; j < start; j++) str_[j] = tmp[j];
+	for(int k = start; k < len_-(end-start+1); k++) str_[k] = tmp[end-start+1+k];
+	len_-=(end-start+1);
+	delete[] tmp;
+}
+int mstring::search(const char* sub_str){
+	int sub_len = strlen(sub_str);
+	bool b = true;
+	for(int i = 0; i < len_; i++){
+		if(str_[i] == sub_str[0]){
+			if(i + sub_len > len_) return -1; 
+			for(int j = 0; j < sub_len; j++){
+				if(str_[i+j] != sub_str[j]){
+					b = false;
+					break;
+				}
+			}
+			if(b == true) return i;
+		}
+		b = true;
+	}
+	return -1;
+}
+void mstring::replace(const char* sub_str, const char *new_str){
+	int point = search(sub_str);
+	if(point == -1) return;
+	del(point, point+strlen(sub_str)-1);
+	insert(new_str, point);
+}
+void mstring::print(){
+	for(int i = 0; i < len_; i++) cout << str_[i];
+	cout << endl;
+}
